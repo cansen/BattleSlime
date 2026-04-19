@@ -5,6 +5,8 @@
 Signature mechanics: **Growth** (collecting objects scales the character up) and **Combat** (momentum-based collisions between players determine damage and destruction). Larger players move slower — speed = baseSpeed / (1 + (size - 1) * constant).
 
 **Docs:** `Assets/Docs/` (GDD in BattleSlime.md)
+**Repo:** `https://github.com/cansen/BattleSlime.git`
+**User style:** Direct and brief — no fluff. Tests things independently and returns with specific issues. Match this tone.
 **Platforms:** TBD
 **Controls:** Keyboard/Mouse — 3rd person camera (controller support in Phase 3)
 
@@ -121,6 +123,11 @@ Rules: small single-purpose commits, never commit generated files (Library/, Tem
 - **UnityMCP** — active via HTTP at `http://127.0.0.1:8080/mcp`. Use for scene/object/script operations.
 - **CoPlay MCP** — use in Phase 3 for `generate_or_edit_images`, `generate_sfx`, `generate_music`.
 - Check `read_console` after every script creation or modification for compile errors before proceeding.
+
+## Unity Setup Requirements
+
+- **Input System:** `InputSystem_Actions.inputactions` must have **Generate C# Class** enabled in the Inspector and Applied. Without this, all scripts using `InputSystem_Actions` will fail to compile.
+- **Ground Layer:** Create a `Ground` layer in Unity and assign it to the arena plane. Set the same layer in `PlayerMovement → Ground Layer` on the Player. Required for jump to work at any size.
 
 ---
 
