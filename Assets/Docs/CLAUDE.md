@@ -45,6 +45,7 @@ All future and performance related concerns must be noted in the **Future Concer
 2. Soft body / jelly visuals ✓
 3. Object collection + size growth ✓
 4. Player collision + combat
+   - **4a. System Setup** — collision detection architecture, layer/tag setup, trigger vs. physics collision decision, entry point for damage resolution
 5. Shrinking ring
 
 ### Phase 2 — Multiplayer

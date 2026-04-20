@@ -130,6 +130,19 @@ All values are exposed via Unity Inspector and subject to tuning.
 | minCircleRadius | 15.0 |
 | playerDeathDurationHpDecrement | 5.0 per second |
 
+## 4c. Combat System Setup
+
+Before any combat logic is implemented, the following must be decided and configured:
+
+- **Collision detection method** — physics collision (`OnCollisionEnter`) vs. trigger (`OnTriggerEnter`)
+- **Layer/tag configuration** — which layers interact with which (Player vs. Player, Player vs. Object)
+- **Entry point** — which script owns the collision event and routes to damage resolution
+- **Damage application** — damage reduces `playerCurrentSize` directly and instantly
+- **Elimination condition** — player is eliminated when `playerCurrentSize` falls below `playerInstantDeathSize`
+- **PvE rule** — player larger than object → absorption (no formula). Player smaller than object → response TBD (currently pushback only).
+
+---
+
 ## 5\. For future
 
 * Characters that do not reach the desired size within a certain time limit lose (instant death or dot).  
