@@ -22,6 +22,10 @@ All future and performance related concerns must be noted in the **Future Concer
 
 ## Future Concerns
 
+### Pending Design Work
+- **Full numeric rescale required** — starting sizes, object sizes, movement constants, and combat formula params (DmgC, DmgM) were designed at different scales and do not produce meaningful results together. Needs a unified pass once core mechanics are validated.
+- **objectSizeValue must be coupled to actual object scale** — currently set independently in the Inspector. Needs a parametric link so visual size and gameplay size value stay in sync. Deferred, revisit after numeric rescale.
+
 ### Performance
 - **`JellyEffect` runs every frame** — trivial at 8 players, monitor if AI bots are added.
 - **SphereCollider sync** — updating collider mid-simulation triggers physics recalculations. Benchmark when player count scales.
