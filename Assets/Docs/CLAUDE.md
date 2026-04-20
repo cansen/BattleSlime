@@ -123,7 +123,7 @@ Rules: small single-purpose commits, never commit generated files (Library/, Tem
 
 - **UnityMCP** — active via HTTP at `http://127.0.0.1:8080/mcp`. Use for scene/object/script operations.
 - **CoPlay MCP** — use in Phase 3 for `generate_or_edit_images`, `generate_sfx`, `generate_music`.
-- Check `read_console` after every script creation or modification for compile errors before proceeding.
+- After every script creation or modification, use MCP to check for compile errors and notify the user before proceeding. Do not assume compilation succeeded.
 
 ## Unity Setup Requirements
 

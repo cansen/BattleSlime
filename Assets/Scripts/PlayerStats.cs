@@ -41,6 +41,25 @@ public class PlayerStats : MonoBehaviour
         jellyEffect?.RefreshBaseScale();
     }
 
+    public void TakeDamage(int damage)
+    {
+        playerCurrentSize -= damage;
+
+        if (playerCurrentSize <= playerInstantDeathSize)
+        {
+            Die();
+            return;
+        }
+
+        transform.localScale = Vector3.one * CalculateVisualScale();
+        jellyEffect?.RefreshBaseScale();
+    }
+
+    public void Die()
+    {
+        Destroy(gameObject);
+    }
+
     public float CalculateVisualScale()
     {
         return Mathf.Pow(playerCurrentSize, 1f / 3f);
