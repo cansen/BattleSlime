@@ -38,7 +38,7 @@ All future and performance related concerns must be noted in the **Future Concer
 ### Deferred Features
 - Visual mesh can be swapped to a more stylized shape post-prototype without changing the collider.
 - Object respawn system.
-- Interaction when player hits an object larger than itself (pushback implemented, final design TBD).
+- **Size/mass coupling** — design principle confirmed (size proportional to mass), but `Rigidbody.mass` is not yet set dynamically. Needs a future pass, likely alongside the numeric rescale.
 
 ---
 
@@ -48,9 +48,14 @@ All future and performance related concerns must be noted in the **Future Concer
 1. Player movement + camera ✓
 2. Soft body / jelly visuals ✓
 3. Object collection + size growth ✓
-4. Player collision + combat
-   - **4a. System Setup** — collision detection architecture, layer/tag setup, trigger vs. physics collision decision, entry point for damage resolution
-5. Shrinking ring
+4. Player collision + combat ✓
+5. Shrinking ring — **Battle Royale** game mode
+   - Finite match length (`matchDuration` = 120s)
+   - Ring starts at `ringStartRadius`, shrinks by `ringShrinkAmount` every `ringShrinkInterval` seconds
+   - Ring shrinks until it reaches `ringMinRadius`
+   - Players outside the ring take `ringDamagePerSecond` damage per second
+   - If ring damage in a tick meets or exceeds `playerDestructionThreshold` (shared with combat), player dies instantly
+   - Game mode tagged **Battle Royale** — additional game modes may be added later
 
 ### Phase 2 — Multiplayer
 6. Photon integration + session management
@@ -140,7 +145,11 @@ Rules: small single-purpose commits, never commit generated files (Library/, Tem
 
 - Player characters are jelly-like, semi-transparent spheres with distinct colors. Every player entity must have `JellyEffect` and `PlayerStats` components.
 - Objects spawned procedurally at game start via `ObjectSpawner`. No respawn.
-- Collection rule: player can only collect objects smaller than `playerCurrentSize`. Larger objects push the player back.
+- Collection rule:
+  - Player size > collectible size → player eats it, grows by `objectSizeValue`, no damage to player.
+  - Player size ≤ collectible size, collectible stationary → combat formula kicks in, collectible velocity = `stationaryVelocity` (default 0.1). Only player takes damage. Collectible stays in scene.
+  - Player size ≤ collectible size, collectible moving → full PvP formula with actual Rigidbody velocity. Only player takes damage. Collectible stays in scene.
+  - **Design principle:** Size is proportional to mass. Not yet wired in Unity physics — expect a future tuning pass.
 - One large flat arena for prototype. Arena layout is content — no code work needed.
 - Online multiplayer via Photon Engine, up to 8 players.
 - Win condition: last player standing. Shrinking ring deals damage outside the safe zone.

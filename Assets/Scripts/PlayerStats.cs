@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
@@ -15,15 +16,20 @@ public class PlayerStats : MonoBehaviour
     public float instantStopDuration = 0.1f;
 
     [Header("Size")]
-    public float playerMaxSize = 10f;
-    public float playerCurrentSize = 1f;
-    public float playerInstantDeathSize = 0.3f;
+    public float playerMaxSize = 1000f;
+    public float playerCurrentSize = 100f;
+    public float playerInstantDeathSize = 10f;
 
     [Header("Combat")]
     public float playerDestructionThreshold = 50f;
     public float playerDamageIndicatorDuration = 1.5f;
     public float playerCollisionForce = 10f;
     public float playerMass = 1f;
+
+    public bool isDead { get; private set; }
+
+    private static readonly List<PlayerStats> activePlayers = new List<PlayerStats>();
+    public static IReadOnlyList<PlayerStats> ActivePlayers => activePlayers;
 
     private JellyEffect jellyEffect;
 
@@ -34,6 +40,9 @@ public class PlayerStats : MonoBehaviour
         jellyEffect?.RefreshBaseScale();
     }
 
+    private void OnEnable() => activePlayers.Add(this);
+    private void OnDisable() => activePlayers.Remove(this);
+
     public void Grow(float amount)
     {
         playerCurrentSize = Mathf.Min(playerCurrentSize + amount, playerMaxSize);
@@ -41,7 +50,7 @@ public class PlayerStats : MonoBehaviour
         jellyEffect?.RefreshBaseScale();
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(float damage)
     {
         playerCurrentSize -= damage;
 
@@ -57,6 +66,7 @@ public class PlayerStats : MonoBehaviour
 
     public void Die()
     {
+        isDead = true;
         Destroy(gameObject);
     }
 

@@ -14,6 +14,7 @@ public class PlayerCombat : MonoBehaviour
 
     [Header("Elimination")]
     [SerializeField] private float eliminationSizeRatio = 2f;
+    [SerializeField] private float absorptionMultiplier = 1f;
 
     [Header("Knockback")]
     [SerializeField] private float knockbackForce = 15f;
@@ -61,6 +62,7 @@ public class PlayerCombat : MonoBehaviour
         if (mySize / otherSize >= eliminationSizeRatio)
         {
             Debug.Log($"[Combat] {otherStats.gameObject.name} instantly eliminated by size ratio.");
+            stats.Grow(otherSize * absorptionMultiplier);
             otherStats.Die();
             return true;
         }
@@ -68,6 +70,7 @@ public class PlayerCombat : MonoBehaviour
         if (otherSize / mySize >= eliminationSizeRatio)
         {
             Debug.Log($"[Combat] {gameObject.name} instantly eliminated by size ratio.");
+            otherStats.Grow(mySize * absorptionMultiplier);
             stats.Die();
             return true;
         }
@@ -91,29 +94,35 @@ public class PlayerCombat : MonoBehaviour
         Debug.Log($"[Combat] {gameObject.name} — Size: {stats.playerCurrentSize:F1}, Velocity: {myVelocity:F2}, Momentum: {myMomentum} | Damage dealt: {damageToOther}");
         Debug.Log($"[Combat] {otherStats.gameObject.name} — Size: {otherStats.playerCurrentSize:F1}, Velocity: {otherVelocity:F2}, Momentum: {otherMomentum} | Damage dealt: {damageToMe}");
 
+        float mySizeBeforeDamage = stats.playerCurrentSize;
+        float otherSizeBeforeDamage = otherStats.playerCurrentSize;
+
         stats.TakeDamage(damageToMe);
         otherStats.TakeDamage(damageToOther);
 
-        ApplyKnockback(myMomentum, otherMomentum, otherCombat.rigidBody);
+        bool iDied = stats.isDead;
+        bool otherDied = otherStats.isDead;
+
+        if (otherDied && !iDied)
+        {
+            stats.Grow(otherSizeBeforeDamage * absorptionMultiplier);
+        }
+        else if (iDied && !otherDied)
+        {
+            otherStats.Grow(mySizeBeforeDamage * absorptionMultiplier);
+        }
+
+        if (!iDied && !otherDied)
+        {
+            ApplyKnockback(myMomentum, otherMomentum, otherCombat.rigidBody);
+        }
     }
 
     private void ApplyKnockback(int myMomentum, int otherMomentum, Rigidbody otherRigidbody)
     {
-        if (myMomentum == otherMomentum)
-        {
-            return;
-        }
-
         Vector3 direction = (otherRigidbody.position - rigidBody.position).normalized;
-
-        if (myMomentum > otherMomentum)
-        {
-            otherRigidbody.AddForce(direction * knockbackForce, ForceMode.Impulse);
-        }
-        else
-        {
-            rigidBody.AddForce(-direction * knockbackForce, ForceMode.Impulse);
-        }
+        rigidBody.AddForce(-direction * knockbackForce, ForceMode.Impulse);
+        otherRigidbody.AddForce(direction * knockbackForce, ForceMode.Impulse);
     }
 
     public float GetEffectiveVelocity()

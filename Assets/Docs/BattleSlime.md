@@ -44,6 +44,30 @@ The character grows by the amount of objects it collects from the environment.
       * Whenever players collide with each other in any way, the damage taken is displayed numerically above the player's character for **playerDamageIndicatorDuration** and then disappears.  
       * When a larger character collides with a smaller character, the **playerCollisionForce** value calculated from the size/mass difference between the large and small character is applied to the smaller character.
 
+## 2b. Game Modes
+
+### Battle Royale
+The primary game mode. A match has a finite, parametric length (`matchDuration`). A shrinking ring defines the safe playable area.
+
+- After match start, a ring with radius `ringStartRadius` becomes the boundary.
+- Every `ringShrinkInterval` seconds, the ring radius shrinks by `ringShrinkAmount`.
+- The ring shrinks until it reaches `ringMinRadius`.
+- Players outside the ring take `ringDamagePerSecond` damage per second.
+- If ring damage in a single tick equals or exceeds `playerDestructionThreshold`, the player dies instantly.
+- Last player standing wins.
+
+| Parameter | Default Value | Notes |
+|---|---|---|
+| **matchDuration** | 120 | Total match length in seconds |
+| **ringStartRadius** | 150.0 | Starting ring radius |
+| **ringShrinkInterval** | 30 | Seconds between each shrink step |
+| **ringShrinkAmount** | 50 | Radius reduction per shrink step — hits minimum at ~90s, final 30s at minimum radius |
+| **ringMinRadius** | 15.0 | Minimum ring radius |
+| **ringDamagePerSecond** | 5.0 | Damage per second while outside ring |
+| **playerDestructionThreshold** | 50 | Shared with combat — instant death if damage ≥ this value |
+
+> Additional game modes may be defined in future sections.
+
 ## 3. Environment
 
 Players grow by collecting objects in three different sizes in a wide, flat area with various walls.
