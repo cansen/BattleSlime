@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 using Fusion;
+using Fusion.Addons.Physics;
 
 public class AddNetworkRigidbody
 {
@@ -19,14 +20,21 @@ public class AddNetworkRigidbody
         {
             GameObject root = scope.prefabContentsRoot;
 
-            if (root.GetComponent<NetworkTransform>() != null)
+            NetworkTransform nt = root.GetComponent<NetworkTransform>();
+            if (nt != null)
             {
-                Debug.Log("NetworkTransform already present.");
+                Object.DestroyImmediate(nt);
+                Debug.Log("Removed NetworkTransform.");
+            }
+
+            if (root.GetComponent<NetworkRigidbody3D>() != null)
+            {
+                Debug.Log("NetworkRigidbody3D already present.");
                 return;
             }
 
-            root.AddComponent<NetworkTransform>();
-            Debug.Log("NetworkTransform added to Player prefab.");
+            root.AddComponent<NetworkRigidbody3D>();
+            Debug.Log("NetworkRigidbody3D added to Player prefab.");
         }
     }
 }
