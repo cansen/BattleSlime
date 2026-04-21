@@ -158,7 +158,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87eafae1d03a14cb1b7e6616c838168a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
-  playerBaseMovementSpeed: 5
+  playerBaseMovementSpeed: 10
   playerSizeMovementConstant: 0.01
   playerSlideSpeed: 3
   playSlideDamping: 4
@@ -230,7 +230,7 @@ MonoBehaviour:
   minimumVelocity: 0.1
   eliminationSizeRatio: 2
   absorptionMultiplier: 1
-  knockbackForce: 15
+  knockbackForce: 45
 --- !u!114 &3599376676222055106
 MonoBehaviour:
   m_ObjectHideFlags: 0

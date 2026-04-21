@@ -31,7 +31,7 @@ public class PlayerCombat : NetworkBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!HasStateAuthority)
+        if (Runner != null && !HasStateAuthority)
         {
             return;
         }

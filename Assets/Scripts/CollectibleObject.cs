@@ -28,7 +28,8 @@ public class CollectibleObject : MonoBehaviour
         if (isCollected) return;
 
         PlayerStats player = collision.gameObject.GetComponent<PlayerStats>();
-        if (player == null || !player.HasStateAuthority) return;
+        if (player == null) return;
+        if (player.Runner != null && !player.HasStateAuthority) return;
 
         if (player.playerCurrentSize > objectSizeValue)
         {
