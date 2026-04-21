@@ -151,4 +151,6 @@ public class ShrinkingRing : MonoBehaviour
     }
 
     public float CurrentRadius => currentRadius;
+    public float MatchTimeRemaining => Mathf.Max(matchDuration - matchTimer, 0f);
+    public float TimeUntilNextShrink => currentRadius <= ringMinRadius ? 0f : Mathf.Max(ringShrinkInterval - shrinkTimer, 0f);
 }
