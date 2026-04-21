@@ -1,8 +1,9 @@
+using Fusion;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerStats))]
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerCombat : MonoBehaviour
+public class PlayerCombat : NetworkBehaviour
 {
     [Header("Formula Parameters")]
     [SerializeField] private float sizeMultiplier = 1f;
@@ -30,99 +31,76 @@ public class PlayerCombat : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        PlayerCombat otherCombat = collision.gameObject.GetComponent<PlayerCombat>();
-        if (otherCombat == null)
+        if (!HasStateAuthority)
         {
             return;
         }
 
-        if (GetInstanceID() < collision.gameObject.GetInstanceID())
+        PlayerCombat opponentCombat = collision.gameObject.GetComponent<PlayerCombat>();
+        if (opponentCombat == null)
         {
             return;
         }
 
-        ResolveCollision(otherCombat);
+        ResolveIncomingDamage(opponentCombat);
     }
 
-    private void ResolveCollision(PlayerCombat otherCombat)
-    {
-        if (CheckInstantElimination(otherCombat.stats))
-        {
-            return;
-        }
-
-        ApplyDamage(otherCombat);
-    }
-
-    private bool CheckInstantElimination(PlayerStats otherStats)
+    private void ResolveIncomingDamage(PlayerCombat opponent)
     {
         float mySize = stats.playerCurrentSize;
-        float otherSize = otherStats.playerCurrentSize;
+        float opponentSize = opponent.stats.playerCurrentSize;
 
-        if (mySize / otherSize >= eliminationSizeRatio)
-        {
-            Debug.Log($"[Combat] {otherStats.gameObject.name} instantly eliminated by size ratio.");
-            stats.Grow(otherSize * absorptionMultiplier);
-            otherStats.Die();
-            return true;
-        }
-
-        if (otherSize / mySize >= eliminationSizeRatio)
+        if (opponentSize / mySize >= eliminationSizeRatio)
         {
             Debug.Log($"[Combat] {gameObject.name} instantly eliminated by size ratio.");
-            otherStats.Grow(mySize * absorptionMultiplier);
+            opponent.RpcGrow(mySize * absorptionMultiplier);
             stats.Die();
-            return true;
+            return;
         }
 
-        return false;
+        if (mySize / opponentSize >= eliminationSizeRatio)
+        {
+            return;
+        }
+
+        ApplySelfDamage(opponent);
     }
 
-    private void ApplyDamage(PlayerCombat otherCombat)
+    private void ApplySelfDamage(PlayerCombat opponent)
     {
-        PlayerStats otherStats = otherCombat.stats;
-
+        PlayerStats opponentStats = opponent.stats;
         float myVelocity = GetEffectiveVelocity();
-        float otherVelocity = otherCombat.GetEffectiveVelocity();
+        float opponentVelocity = opponent.GetEffectiveVelocity();
 
         int myMomentum = CombatFormula.CalculateMomentum(stats.playerCurrentSize, myVelocity, sizeMultiplier, velocityMultiplier, velocityConstant);
-        int otherMomentum = CombatFormula.CalculateMomentum(otherStats.playerCurrentSize, otherVelocity, sizeMultiplier, velocityMultiplier, velocityConstant);
+        int opponentMomentum = CombatFormula.CalculateMomentum(opponentStats.playerCurrentSize, opponentVelocity, sizeMultiplier, velocityMultiplier, velocityConstant);
 
-        int damageToOther = CombatFormula.CalculateDamage(myMomentum, otherMomentum, damageMultiplier, damageConstant);
-        int damageToMe = CombatFormula.CalculateDamage(otherMomentum, myMomentum, damageMultiplier, damageConstant);
+        int damageToMe = CombatFormula.CalculateDamage(opponentMomentum, myMomentum, damageMultiplier, damageConstant);
 
-        Debug.Log($"[Combat] {gameObject.name} — Size: {stats.playerCurrentSize:F1}, Velocity: {myVelocity:F2}, Momentum: {myMomentum} | Damage dealt: {damageToOther}");
-        Debug.Log($"[Combat] {otherStats.gameObject.name} — Size: {otherStats.playerCurrentSize:F1}, Velocity: {otherVelocity:F2}, Momentum: {otherMomentum} | Damage dealt: {damageToMe}");
+        Debug.Log($"[Combat] {gameObject.name} — Size: {stats.playerCurrentSize:F1}, Velocity: {myVelocity:F2}, Momentum: {myMomentum} | Takes: {damageToMe}");
 
         float mySizeBeforeDamage = stats.playerCurrentSize;
-        float otherSizeBeforeDamage = otherStats.playerCurrentSize;
-
         stats.TakeDamage(damageToMe);
-        otherStats.TakeDamage(damageToOther);
 
-        bool iDied = stats.isDead;
-        bool otherDied = otherStats.isDead;
-
-        if (otherDied && !iDied)
+        if (stats.isDead)
         {
-            stats.Grow(otherSizeBeforeDamage * absorptionMultiplier);
-        }
-        else if (iDied && !otherDied)
-        {
-            otherStats.Grow(mySizeBeforeDamage * absorptionMultiplier);
+            opponent.RpcGrow(mySizeBeforeDamage * absorptionMultiplier);
+            return;
         }
 
-        if (!iDied && !otherDied)
-        {
-            ApplyKnockback(myMomentum, otherMomentum, otherCombat.rigidBody);
-        }
+        ApplySelfKnockback(opponent.rigidBody);
     }
 
-    private void ApplyKnockback(int myMomentum, int otherMomentum, Rigidbody otherRigidbody)
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RpcGrow(float amount)
     {
-        Vector3 direction = (otherRigidbody.position - rigidBody.position).normalized;
-        rigidBody.AddForce(-direction * knockbackForce, ForceMode.Impulse);
-        otherRigidbody.AddForce(direction * knockbackForce, ForceMode.Impulse);
+        stats.Grow(amount);
+    }
+
+    private void ApplySelfKnockback(Rigidbody opponentRigidbody)
+    {
+        Vector3 direction = (rigidBody.position - opponentRigidbody.position).normalized;
+        rigidBody.AddForce(direction * knockbackForce, ForceMode.Impulse);
     }
 
     public float GetEffectiveVelocity()

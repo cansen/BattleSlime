@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 4726768872426950109}
   - component: {fileID: 4309144915234120407}
   - component: {fileID: 3599376676222055106}
+  - component: {fileID: 7078600379500508026}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -166,12 +167,15 @@ MonoBehaviour:
   playerJumpHeightReachDuration: 0.4
   instantStopDuration: 0.1
   playerMaxSize: 1000
-  playerCurrentSize: 100
+  playerStartSize: 100
   playerInstantDeathSize: 10
   playerDestructionThreshold: 50
   playerDamageIndicatorDuration: 1.5
   playerCollisionForce: 10
   playerMass: 1
+  _playerCurrentSize: 0
+  _isDead:
+    _value: 0
 --- !u!114 &8126311480874387694
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -243,5 +247,25 @@ MonoBehaviour:
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []
-  NetworkedBehaviours: []
+  NetworkedBehaviours:
+  - {fileID: 7626534060243037838}
+  - {fileID: 4309144915234120407}
+  - {fileID: 7078600379500508026}
   ForceRemoteRenderTimeframe: 0
+--- !u!114 &7078600379500508026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4159350031125668277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkTransform
+  _stateAuthorityChangeErrorCorrectionDelta: 0
+  SyncScale: 0
+  SyncParent: 0
+  _autoAOIOverride: 1
+  DisableSharedModeInterpolation: 0

@@ -125,7 +125,7 @@ public class ShrinkingRing : MonoBehaviour
         for (int i = 0; i < outsidePlayers.Count; i++)
         {
             PlayerStats player = outsidePlayers[i];
-            if (player.isDead)
+            if (player.isDead || !player.HasStateAuthority)
             {
                 continue;
             }

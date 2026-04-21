@@ -1,7 +1,8 @@
+using Fusion;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerStats : MonoBehaviour
+public class PlayerStats : NetworkBehaviour
 {
     [Header("Movement")]
     public float playerBaseMovementSpeed = 5f;
@@ -17,7 +18,7 @@ public class PlayerStats : MonoBehaviour
 
     [Header("Size")]
     public float playerMaxSize = 1000f;
-    public float playerCurrentSize = 100f;
+    [SerializeField] private float playerStartSize = 100f;
     public float playerInstantDeathSize = 10f;
 
     [Header("Combat")]
@@ -26,7 +27,8 @@ public class PlayerStats : MonoBehaviour
     public float playerCollisionForce = 10f;
     public float playerMass = 1f;
 
-    public bool isDead { get; private set; }
+    [Networked] public float playerCurrentSize { get; set; }
+    [Networked] public NetworkBool isDead { get; set; }
 
     private static readonly List<PlayerStats> activePlayers = new List<PlayerStats>();
     public static IReadOnlyList<PlayerStats> ActivePlayers => activePlayers;
@@ -36,8 +38,25 @@ public class PlayerStats : MonoBehaviour
     private void Awake()
     {
         jellyEffect = GetComponent<JellyEffect>();
+    }
+
+    public override void Spawned()
+    {
+        if (HasStateAuthority)
+        {
+            playerCurrentSize = playerStartSize;
+        }
+
         transform.localScale = Vector3.one * CalculateVisualScale();
         jellyEffect?.RefreshBaseScale();
+    }
+
+    public override void Render()
+    {
+        if (playerCurrentSize > 0f)
+        {
+            transform.localScale = Vector3.one * CalculateVisualScale();
+        }
     }
 
     private void OnEnable() => activePlayers.Add(this);
@@ -46,7 +65,6 @@ public class PlayerStats : MonoBehaviour
     public void Grow(float amount)
     {
         playerCurrentSize = Mathf.Min(playerCurrentSize + amount, playerMaxSize);
-        transform.localScale = Vector3.one * CalculateVisualScale();
         jellyEffect?.RefreshBaseScale();
     }
 
@@ -60,14 +78,21 @@ public class PlayerStats : MonoBehaviour
             return;
         }
 
-        transform.localScale = Vector3.one * CalculateVisualScale();
         jellyEffect?.RefreshBaseScale();
     }
 
     public void Die()
     {
         isDead = true;
-        Destroy(gameObject);
+
+        if (Runner != null)
+        {
+            Runner.Despawn(Object);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     public float CalculateVisualScale()
