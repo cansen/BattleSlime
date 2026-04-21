@@ -166,12 +166,15 @@ MonoBehaviour:
   playerJumpHeightReachDuration: 0.4
   instantStopDuration: 0.1
   playerMaxSize: 1000
-  playerCurrentSize: 100
+  playerStartSize: 100
   playerInstantDeathSize: 10
   playerDestructionThreshold: 50
   playerDamageIndicatorDuration: 1.5
   playerCollisionForce: 10
   playerMass: 1
+  _playerCurrentSize: 0
+  _isDead:
+    _value: 0
 --- !u!114 &5300720017289779407
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -243,5 +246,7 @@ MonoBehaviour:
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []
-  NetworkedBehaviours: []
+  NetworkedBehaviours:
+  - {fileID: 1677171079216273954}
+  - {fileID: 8208054351896652131}
   ForceRemoteRenderTimeframe: 0

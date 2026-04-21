@@ -43,12 +43,22 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        if (stats.Runner != null && !stats.HasStateAuthority)
+        {
+            return;
+        }
+
         moveInput = inputActions.Player.Move.ReadValue<Vector2>();
         isGrounded = CheckGrounded();
     }
 
     private void FixedUpdate()
     {
+        if (stats.Runner != null && !stats.HasStateAuthority)
+        {
+            return;
+        }
+
         ApplyMovement();
         ApplySlide();
     }
@@ -102,6 +112,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext context)
     {
+        if (stats.Runner != null && !stats.HasStateAuthority)
+        {
+            return;
+        }
+
         if (!isGrounded)
         {
             return;

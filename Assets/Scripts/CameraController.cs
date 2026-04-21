@@ -34,11 +34,28 @@ public class CameraController : MonoBehaviour
     {
         if (target == null)
         {
+            FindLocalPlayer();
+        }
+
+        if (target == null)
+        {
             return;
         }
 
         RotateCamera();
         PositionCamera();
+    }
+
+    private void FindLocalPlayer()
+    {
+        for (int i = 0; i < PlayerStats.ActivePlayers.Count; i++)
+        {
+            if (PlayerStats.ActivePlayers[i].isLocalPlayer)
+            {
+                target = PlayerStats.ActivePlayers[i].transform;
+                return;
+            }
+        }
     }
 
     private void RotateCamera()

@@ -27,8 +27,39 @@ public class PlayerStats : NetworkBehaviour
     public float playerCollisionForce = 10f;
     public float playerMass = 1f;
 
-    [Networked] public float playerCurrentSize { get; set; }
-    [Networked] public NetworkBool isDead { get; set; }
+    [Networked] private float networkedSize { get; set; }
+    [Networked] private NetworkBool networkedIsDead { get; set; }
+
+    private float localSize;
+    private bool localIsDead;
+
+    public float playerCurrentSize
+    {
+        get => Runner != null ? networkedSize : localSize;
+        set
+        {
+            localSize = value;
+            if (Runner != null)
+            {
+                networkedSize = value;
+            }
+        }
+    }
+
+    public bool isDead
+    {
+        get => Runner != null ? networkedIsDead : localIsDead;
+        set
+        {
+            localIsDead = value;
+            if (Runner != null)
+            {
+                networkedIsDead = value;
+            }
+        }
+    }
+
+    public bool isLocalPlayer { get; private set; }
 
     private static readonly List<PlayerStats> activePlayers = new List<PlayerStats>();
     public static IReadOnlyList<PlayerStats> ActivePlayers => activePlayers;
@@ -38,12 +69,16 @@ public class PlayerStats : NetworkBehaviour
     private void Awake()
     {
         jellyEffect = GetComponent<JellyEffect>();
+        localSize = playerStartSize;
+        transform.localScale = Vector3.one * CalculateVisualScale();
+        jellyEffect?.RefreshBaseScale();
     }
 
     public override void Spawned()
     {
         if (HasStateAuthority)
         {
+            isLocalPlayer = true;
             playerCurrentSize = playerStartSize;
         }
 
@@ -65,6 +100,7 @@ public class PlayerStats : NetworkBehaviour
     public void Grow(float amount)
     {
         playerCurrentSize = Mathf.Min(playerCurrentSize + amount, playerMaxSize);
+        transform.localScale = Vector3.one * CalculateVisualScale();
         jellyEffect?.RefreshBaseScale();
     }
 
@@ -78,6 +114,7 @@ public class PlayerStats : NetworkBehaviour
             return;
         }
 
+        transform.localScale = Vector3.one * CalculateVisualScale();
         jellyEffect?.RefreshBaseScale();
     }
 
