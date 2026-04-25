@@ -830,7 +830,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9eafcbb03e48e4c2c8e2b583c7abb4b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObjectSpawner
-  collectiblePrefab: {fileID: 0}
+  collectiblePrefab: {fileID: 45490928815152843, guid: 4c6943ae95f2949b98cc7241b7a690b3, type: 3}
   spawnCount: 30
   arenaHalfSize: 50
   minSizeValue: 80
