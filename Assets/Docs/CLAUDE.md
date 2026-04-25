@@ -39,6 +39,7 @@ All future and performance related concerns must be noted in the **Future Concer
 - Visual mesh can be swapped to a more stylized shape post-prototype without changing the collider.
 - Object respawn system.
 - **Size/mass coupling** — design principle confirmed (size proportional to mass), but `Rigidbody.mass` is not yet set dynamically. Needs a future pass, likely alongside the numeric rescale.
+- **Health loss manifestation** — on any collision causing health/size loss (combat or ring damage), spawn collectible mini spheres representing the lost health. Spheres have small `objectSizeValue`, despawn after timeout, can be collected by any player.
 
 ---
 
