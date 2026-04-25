@@ -107,10 +107,6 @@ public class PlayerMovement : NetworkBehaviour
         return rigidBody.mass * velocity;
     }
 
-    private void OnDashStarted(InputAction.CallbackContext context) => isDashing = true;
-
-    private void OnDashCanceled(InputAction.CallbackContext context) => isDashing = false;
-
     private bool CheckGrounded()
     {
         float scaledDistance = transform.localScale.y * 0.5f + groundCheckDistance;
