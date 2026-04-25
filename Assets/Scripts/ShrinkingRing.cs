@@ -29,6 +29,7 @@ public class ShrinkingRing : NetworkBehaviour
     [Networked] private float networkedShrinkTimer { get; set; }
     [Networked] private float networkedDamageTimer { get; set; }
 
+    private float currentRadius;
     private LineRenderer lineRenderer;
     private ParticleSystem ringParticles;
 
@@ -49,6 +50,10 @@ public class ShrinkingRing : NetworkBehaviour
 
     private void Update()
     {
+        if (Runner == null)
+        {
+            return;
+        }
         currentRadius = networkedCurrentRadius;
         UpdateVisuals();
     }
@@ -162,7 +167,7 @@ public class ShrinkingRing : NetworkBehaviour
         return Vector2.Distance(flatPosition, flatCenter) > networkedCurrentRadius;
     }
 
-    public float CurrentRadius => currentRadius;
-    public float MatchTimeRemaining => Mathf.Max(matchDuration - matchTimer, 0f);
-    public float TimeUntilNextShrink => currentRadius <= ringMinRadius ? 0f : Mathf.Max(ringShrinkInterval - shrinkTimer, 0f);
+    public float CurrentRadius => Runner != null ? currentRadius : ringStartRadius;
+    public float MatchTimeRemaining => Runner != null ? Mathf.Max(matchDuration - networkedMatchTimer, 0f) : matchDuration;
+    public float TimeUntilNextShrink => Runner != null && currentRadius > ringMinRadius ? Mathf.Max(ringShrinkInterval - networkedShrinkTimer, 0f) : 0f;
 }

@@ -30,7 +30,10 @@ public class PlayerMovement : NetworkBehaviour
             return;
         }
 
-        var input = GetInput<NetworkManager.NetworkInputData>();
+        if (!GetInput(out NetworkManager.NetworkInputData input))
+        {
+            return;
+        }
         moveInput = input.Move;
         isDashing = input.Dash;
         if (input.Jump)

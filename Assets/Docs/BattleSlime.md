@@ -47,7 +47,10 @@ The character grows by the amount of objects it collects from the environment.
 ### Health Loss Manifestation
 Whenever a player loses health/size from any collision (player-vs-player combat or ring damage), the lost health is manifested as collectible mini spheres scattered around the impact location. These spheres can be collected by any player to regain the health/size, promoting dynamic gameplay and resource competition.
 
-* Mini spheres have a small `objectSizeValue` (e.g., 1-5) and despawn after a short time if not collected.
+* Each sphere carries `damage / numSpheres` size value (up to `maxMiniSpheresPerHit` spheres per hit).
+* Spheres are launched outward and upward with `miniSphereScatterForce` on spawn.
+* A `miniSphereGraceDuration` prevents any player from collecting them immediately after they appear.
+* Spheres despawn after 10 seconds if not collected. They cannot deal damage to players (`canDamagePlayer = false`).
 * Collection follows the same rules as regular objects: player must be larger than the sphere's value to collect it.
 
 ## 2b. Game Modes
@@ -91,7 +94,7 @@ There are 3 different types of objects in different sizes (small, medium, large)
 
 ### Spawning
 - Objects are spawned procedurally at game start by an `ObjectSpawner`.
-- Spawn count, area bounds, and size value range are inspector-tunable.
+- Spawn count, area bounds, and size value range are inspector-tunable. Current defaults: `spawnCount = 30`, `minSizeValue = 80`, `maxSizeValue = 500`.
 - Objects are placed randomly within the arena bounds on the ground plane.
 
 ### Collection Rule
@@ -105,8 +108,9 @@ There are 3 different types of objects in different sizes (small, medium, large)
 - Visual scale maps non-linearly via cube root: `visualScale = playerCurrentSize ^ (1/3)`. This makes early growth feel gradual and large sizes require many more pickups. Object visual scale follows the same formula.
 
 ### On Collection Blocked
-- A pushback force is applied to the player's Rigidbody in the direction away from the object.
-- Pushback force magnitude is inspector-tunable.
+- The combat formula runs: momentum calculated for both player and collectible, damage applied to the player.
+- Knockback is applied to the player in the direction away from the collectible, with magnitude proportional to `max(collectibleMomentum - playerMomentum, 0) * knockbackForce`.
+- Lost health is manifested as collectible mini spheres (see Health Loss Manifestation in Section 2).
 
 | Parameter | Default Value | Notes |
 |---|---|---|
@@ -124,7 +128,7 @@ All values are exposed via Unity Inspector and subject to tuning.
 | Parameter | Default Value |
 |---|---|
 | playerBaseMovementSpeed | 5.0 |
-| playerSizeMovementConstant | 0.05 |
+| playerSizeMovementConstant | 0.007 |
 | playerSlideSpeed | 3.0 |
 | playSlideDamping | 4.0 |
 | playerDashMultiplier | 2.5 |
@@ -169,15 +173,14 @@ Before any combat logic is implemented, the following must be decided and config
 - **Entry point** — which script owns the collision event and routes to damage resolution
 - **Damage application** — damage reduces `playerCurrentSize` directly and instantly
 - **Elimination condition** — player is eliminated when `playerCurrentSize` falls below `playerInstantDeathSize`
-- **PvE rule** — player larger than object → absorption (no formula). Player smaller than object → response TBD (currently pushback only).
+- **PvE rule** — player larger than object → absorption, player grows by `objectSizeValue`. Player smaller than object → combat formula runs (same as PvP), player takes damage, knockback proportional to momentum difference, lost health drops as mini spheres.
 
 ---
 
 ## 5\. For future
 
-* Characters that do not reach the desired size within a certain time limit lose (instant death or dot).  
-* During a collision, the character with higher momentum deals damage first.  
-* Interaction when encountering objects larger than oneself?? (hp loss?)
+* Characters that do not reach the desired size within a certain time limit lose (instant death or dot).
+* During a collision, the character with higher momentum deals damage first.
 
 ## 6. References
 

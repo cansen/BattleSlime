@@ -1,18 +1,23 @@
+using Fusion;
 using UnityEngine;
 
-public class ObjectSpawner : MonoBehaviour
+public class ObjectSpawner : NetworkBehaviour
 {
     [Header("Spawn Settings")]
-    [SerializeField] private GameObject collectiblePrefab;
+    [SerializeField] private NetworkObject collectiblePrefab;
     [SerializeField] private int spawnCount = 30;
     [SerializeField] private float arenaHalfSize = 50f;
 
     [Header("Size Value Range")]
-    [SerializeField] private float minSizeValue = 10f;
-    [SerializeField] private float maxSizeValue = 200f;
+    [SerializeField] private float minSizeValue = 80f;
+    [SerializeField] private float maxSizeValue = 500f;
 
-    private void Start()
+    public override void Spawned()
     {
+        if (!HasStateAuthority)
+        {
+            return;
+        }
         SpawnObjects();
     }
 
@@ -26,9 +31,24 @@ public class ObjectSpawner : MonoBehaviour
 
     private void SpawnSingle()
     {
+        float sizeValue = Random.Range(minSizeValue, maxSizeValue);
+        float visualScale = Mathf.Pow(sizeValue, 1f / 3f);
         Vector3 position = GenerateRandomPosition();
-        GameObject instance = Instantiate(collectiblePrefab, position, Quaternion.identity);
-        AssignSizeValue(instance);
+        position.y = visualScale / 2f;
+        Runner.Spawn(collectiblePrefab, position, Quaternion.identity,
+            onBeforeSpawned: (runner, obj) => InitCollectible(obj, sizeValue, visualScale));
+    }
+
+    private void InitCollectible(NetworkObject obj, float sizeValue, float visualScale)
+    {
+        CollectibleObject co = obj.GetComponent<CollectibleObject>();
+        if (co == null)
+        {
+            return;
+        }
+        co.objectSizeValue = sizeValue;
+        co.canDamagePlayer = true;
+        obj.transform.localScale = Vector3.one * visualScale;
     }
 
     private Vector3 GenerateRandomPosition()
@@ -36,23 +56,5 @@ public class ObjectSpawner : MonoBehaviour
         float x = Random.Range(-arenaHalfSize, arenaHalfSize);
         float z = Random.Range(-arenaHalfSize, arenaHalfSize);
         return new Vector3(x, 0f, z);
-    }
-
-    private void AssignSizeValue(GameObject instance)
-    {
-        CollectibleObject collectible = instance.GetComponent<CollectibleObject>();
-        if (collectible == null)
-        {
-            return;
-        }
-
-        float sizeValue = Random.Range(minSizeValue, maxSizeValue);
-        collectible.objectSizeValue = sizeValue;
-        float visualScale = Mathf.Pow(sizeValue, 1f / 3f);
-        instance.transform.localScale = Vector3.one * visualScale;
-
-        Vector3 position = instance.transform.position;
-        position.y = visualScale / 2f;
-        instance.transform.position = position;
     }
 }

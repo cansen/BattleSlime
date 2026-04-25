@@ -39,7 +39,7 @@ All future and performance related concerns must be noted in the **Future Concer
 - Visual mesh can be swapped to a more stylized shape post-prototype without changing the collider.
 - Object respawn system.
 - **Size/mass coupling** — design principle confirmed (size proportional to mass), but `Rigidbody.mass` is not yet set dynamically. Needs a future pass, likely alongside the numeric rescale.
-- **Health loss manifestation** — on any collision causing health/size loss (combat or ring damage), spawn collectible mini spheres representing the lost health. Spheres have small `objectSizeValue`, despawn after timeout, can be collected by any player.
+- **Mini sphere networking** — mini spheres currently spawn via `Instantiate()`, not `Runner.Spawn()`. In multiplayer, only the authority client sees them. Needs `CollectibleObjectPrefab` registered in Fusion's NetworkProjectConfig and `Runner.Spawn()` restored to sync across clients.
 
 ---
 
@@ -148,9 +148,10 @@ Rules: small single-purpose commits, never commit generated files (Library/, Tem
 - Objects spawned procedurally at game start via `ObjectSpawner`. No respawn.
 - Collection rule:
   - Player size > collectible size → player eats it, grows by `objectSizeValue`, no damage to player.
-  - Player size ≤ collectible size, collectible stationary → combat formula kicks in, collectible velocity = `stationaryVelocity` (default 0.1). Only player takes damage. Collectible stays in scene.
-  - Player size ≤ collectible size, collectible moving → full PvP formula with actual Rigidbody velocity. Only player takes damage. Collectible stays in scene.
-  - **Design principle:** Size is proportional to mass. Not yet wired in Unity physics — expect a future tuning pass.
+  - Player size ≤ collectible size, collectible stationary → combat formula kicks in, collectible velocity = `stationaryVelocity` (default 0.1). Only player takes damage. Collectible stays in scene. Knockback applied proportional to `max(collectibleMomentum - playerMomentum, 0) * knockbackForce`.
+  - Player size ≤ collectible size, collectible moving → full PvP formula with actual Rigidbody velocity. Only player takes damage. Collectible stays in scene. Same momentum-proportional knockback.
+- Whenever damage is dealt (PvP, PvC, or ring), `TakeDamage` spawns up to `maxMiniSpheresPerHit` (default 10) mini spheres via `Instantiate()`. Each carries `damage / numSpheres` size value, despawns after 10s, has `canDamagePlayer = false`, and is launched outward with `miniSphereScatterForce`. A `miniSphereGraceDuration` (default 1.5s) prevents any player from collecting them immediately after spawn.
+- **Design principle:** Size is proportional to mass. Not yet wired in Unity physics — expect a future tuning pass.
 - One large flat arena for prototype. Arena layout is content — no code work needed.
 - Online multiplayer via Photon Engine, up to 8 players.
 - Win condition: last player standing. Shrinking ring deals damage outside the safe zone.

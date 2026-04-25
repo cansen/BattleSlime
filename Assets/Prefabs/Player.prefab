@@ -159,7 +159,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   playerBaseMovementSpeed: 10
-  playerSizeMovementConstant: 0.01
+  playerSizeMovementConstant: 0.007
   playerSlideSpeed: 3
   playSlideDamping: 4
   playerDashMultiplier: 2.5
@@ -174,9 +174,7 @@ MonoBehaviour:
   playerCollisionForce: 10
   playerMass: 1
   miniSpherePrefab: {fileID: 3635562228949669565, guid: 4c6943ae95f2949b98cc7241b7a690b3, type: 3}
-  _playerCurrentSize: 0
-  _isDead:
-    _value: 0
+  maxMiniSpheresPerHit: 10
 --- !u!114 &8126311480874387694
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -231,7 +229,7 @@ MonoBehaviour:
   minimumVelocity: 0.1
   eliminationSizeRatio: 2
   absorptionMultiplier: 1
-  knockbackForce: 45
+  knockbackForce: 0.05
 --- !u!114 &3599376676222055106
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -250,6 +248,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 7626534060243037838}
+  - {fileID: 8126311480874387694}
   - {fileID: 4309144915234120407}
   - {fileID: 5212204144095188994}
   ForceRemoteRenderTimeframe: 0

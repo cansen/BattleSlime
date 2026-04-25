@@ -26,7 +26,10 @@ public class PlayerStats : NetworkBehaviour
     public float playerDamageIndicatorDuration = 1.5f;
     public float playerCollisionForce = 10f;
     public float playerMass = 1f;
-    [SerializeField] private NetworkObject miniSpherePrefab;
+    [SerializeField] private GameObject miniSpherePrefab;
+    [SerializeField] private int maxMiniSpheresPerHit = 10;
+    [SerializeField] private float miniSphereScatterForce = 8f;
+    [SerializeField] private float miniSphereGraceDuration = 1.5f;
 
     [Networked] private float networkedSize { get; set; }
     [Networked] private NetworkBool networkedIsDead { get; set; }
@@ -110,22 +113,31 @@ public class PlayerStats : NetworkBehaviour
         playerCurrentSize -= damage;
 
         // Spawn mini spheres for lost health
-        if (damage > 0f && Runner != null && HasStateAuthority && miniSpherePrefab != null)
+        if (damage > 0f && miniSpherePrefab != null)
         {
-            int numSpheres = Mathf.CeilToInt(damage);
+            int numSpheres = Mathf.Clamp(Mathf.CeilToInt(damage), 1, maxMiniSpheresPerHit);
             float valuePerSphere = damage / numSpheres;
             for (int i = 0; i < numSpheres; i++)
             {
                 Vector3 offset = Random.insideUnitSphere * 2f;
-                offset.y = 0f; // Keep on ground
+                offset.y = 0f;
                 Vector3 spawnPos = transform.position + offset;
-                NetworkObject sphere = Runner.Spawn(miniSpherePrefab, spawnPos, Quaternion.identity);
+                GameObject sphere = Instantiate(miniSpherePrefab, spawnPos, Quaternion.identity);
                 CollectibleObject co = sphere.GetComponent<CollectibleObject>();
                 if (co != null)
                 {
                     co.objectSizeValue = valuePerSphere;
                     co.canDamagePlayer = false;
-                    co.despawnTime = 10f;
+                    co.ScheduleDespawn(10f);
+                    co.SetGracePeriod(miniSphereGraceDuration);
+                }
+
+                Rigidbody sphereRb = sphere.GetComponent<Rigidbody>();
+                if (sphereRb != null)
+                {
+                    Vector3 scatterDir = offset.sqrMagnitude > 0.001f ? offset.normalized : Random.onUnitSphere;
+                    scatterDir.y = Mathf.Abs(scatterDir.y) + 0.3f;
+                    sphereRb.AddForce(scatterDir.normalized * miniSphereScatterForce, ForceMode.Impulse);
                 }
             }
         }

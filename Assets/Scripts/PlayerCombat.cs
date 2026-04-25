@@ -88,7 +88,7 @@ public class PlayerCombat : NetworkBehaviour
             return;
         }
 
-        ApplySelfKnockback(opponent.rigidBody);
+        ApplySelfKnockback(opponent.rigidBody, opponentMomentum - myMomentum);
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -97,10 +97,11 @@ public class PlayerCombat : NetworkBehaviour
         stats.Grow(amount);
     }
 
-    private void ApplySelfKnockback(Rigidbody opponentRigidbody)
+    private void ApplySelfKnockback(Rigidbody opponentRigidbody, int momentumDiff)
     {
         Vector3 direction = (rigidBody.position - opponentRigidbody.position).normalized;
-        rigidBody.AddForce(direction * knockbackForce, ForceMode.Impulse);
+        float force = Mathf.Max(momentumDiff, 0) * knockbackForce;
+        rigidBody.AddForce(direction * force, ForceMode.Impulse);
     }
 
     public float GetEffectiveVelocity()

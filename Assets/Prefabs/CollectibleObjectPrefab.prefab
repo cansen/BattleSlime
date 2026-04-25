@@ -127,7 +127,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CollectibleObject
   objectSizeValue: 1
-  pushbackForce: 8
+  stationaryVelocity: 0.1
+  canDamagePlayer: 1
+  despawnTime: 0
+  knockbackForce: 0.05
+  sizeMultiplier: 1
+  velocityMultiplier: 1
+  velocityConstant: 0.1
+  damageMultiplier: 0.005
+  damageConstant: 5000
 --- !u!114 &9146948845719255681
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -140,25 +148,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87eafae1d03a14cb1b7e6616c838168a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
-  _networkedBehaviours: []
-  _flags: 0
-  _areaOfInterestOverride: {fileID: 0}
-  _nestedObjects: []
-  _sceneViewId: 0
-  _scenePath: 
-  _scenePathHash: 0
-  _isSpawned: 0
-  _hasInputAuthority: 0
-  _hasStateAuthority: 0
-  _simulation: {fileID: 0}
-  _runner: {fileID: 0}
-  _object: {fileID: 0}
-  _interest: {fileID: 0}
-  _parentNetworkObject: {fileID: 0}
-  _nestedObjectType: 0
-  _isNestedObject: 0
-  _isPooled: 0
-  _poolIndex: 0
-  _poolKey: 0
-  _poolTick: 0
-  _poolFlags: 0
+  playerBaseMovementSpeed: 5
+  playerSizeMovementConstant: 1
+  playerSlideSpeed: 3
+  playSlideDamping: 4
+  playerDashMultiplier: 2.5
+  playerJumpHeight: 2
+  playerJumpHeightReachDuration: 0.4
+  instantStopDuration: 0.1
+  playerMaxSize: 1000
+  playerStartSize: 100
+  playerInstantDeathSize: 10
+  playerDestructionThreshold: 50
+  playerDamageIndicatorDuration: 1.5
+  playerCollisionForce: 10
+  playerMass: 1
+  miniSpherePrefab: {fileID: 0}
+  maxMiniSpheresPerHit: 10
