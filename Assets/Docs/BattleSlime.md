@@ -44,6 +44,12 @@ The character grows by the amount of objects it collects from the environment.
       * Whenever players collide with each other in any way, the damage taken is displayed numerically above the player's character for **playerDamageIndicatorDuration** and then disappears.  
       * When a larger character collides with a smaller character, the **playerCollisionForce** value calculated from the size/mass difference between the large and small character is applied to the smaller character.
 
+### Health Loss Manifestation
+Whenever a player loses health/size from any collision (player-vs-player combat or ring damage), the lost health is manifested as collectible mini spheres scattered around the impact location. These spheres can be collected by any player to regain the health/size, promoting dynamic gameplay and resource competition.
+
+* Mini spheres have a small `objectSizeValue` (e.g., 1-5) and despawn after a short time if not collected.
+* Collection follows the same rules as regular objects: player must be larger than the sphere's value to collect it.
+
 ## 2b. Game Modes
 
 ### Battle Royale
