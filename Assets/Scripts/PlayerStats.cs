@@ -26,6 +26,7 @@ public class PlayerStats : NetworkBehaviour
     public float playerDamageIndicatorDuration = 1.5f;
     public float playerCollisionForce = 10f;
     public float playerMass = 1f;
+    [SerializeField] private NetworkObject miniSpherePrefab;
 
     [Networked] private float networkedSize { get; set; }
     [Networked] private NetworkBool networkedIsDead { get; set; }
@@ -107,6 +108,27 @@ public class PlayerStats : NetworkBehaviour
     public void TakeDamage(float damage)
     {
         playerCurrentSize -= damage;
+
+        // Spawn mini spheres for lost health
+        if (damage > 0f && Runner != null && HasStateAuthority && miniSpherePrefab != null)
+        {
+            int numSpheres = Mathf.CeilToInt(damage);
+            float valuePerSphere = damage / numSpheres;
+            for (int i = 0; i < numSpheres; i++)
+            {
+                Vector3 offset = Random.insideUnitSphere * 2f;
+                offset.y = 0f; // Keep on ground
+                Vector3 spawnPos = transform.position + offset;
+                NetworkObject sphere = Runner.Spawn(miniSpherePrefab, spawnPos, Quaternion.identity);
+                CollectibleObject co = sphere.GetComponent<CollectibleObject>();
+                if (co != null)
+                {
+                    co.objectSizeValue = valuePerSphere;
+                    co.canDamagePlayer = false;
+                    co.despawnTime = 10f;
+                }
+            }
+        }
 
         if (playerCurrentSize <= playerInstantDeathSize)
         {

@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8514706831416461871}
   - component: {fileID: 8501507786054081100}
   - component: {fileID: 9146948845719255680}
+  - component: {fileID: 9146948845719255681}
   m_Layer: 0
   m_Name: CollectibleObjectPrefab
   m_TagString: Untagged
@@ -127,3 +128,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CollectibleObject
   objectSizeValue: 1
   pushbackForce: 8
+--- !u!114 &9146948845719255681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3635562228949669565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87eafae1d03a14cb1b7e6616c838168a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
+  _networkedBehaviours: []
+  _flags: 0
+  _areaOfInterestOverride: {fileID: 0}
+  _nestedObjects: []
+  _sceneViewId: 0
+  _scenePath: 
+  _scenePathHash: 0
+  _isSpawned: 0
+  _hasInputAuthority: 0
+  _hasStateAuthority: 0
+  _simulation: {fileID: 0}
+  _runner: {fileID: 0}
+  _object: {fileID: 0}
+  _interest: {fileID: 0}
+  _parentNetworkObject: {fileID: 0}
+  _nestedObjectType: 0
+  _isNestedObject: 0
+  _isPooled: 0
+  _poolIndex: 0
+  _poolKey: 0
+  _poolTick: 0
+  _poolFlags: 0

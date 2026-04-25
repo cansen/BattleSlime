@@ -4,6 +4,8 @@ public class CollectibleObject : MonoBehaviour
 {
     [SerializeField] public float objectSizeValue = 1f;
     [SerializeField] private float stationaryVelocity = 0.1f;
+    [SerializeField] private bool canDamagePlayer = true;
+    [SerializeField] private float despawnTime = 0f;
 
     [Header("Knockback")]
     [SerializeField] private float knockbackForce = 15f;
@@ -21,6 +23,10 @@ public class CollectibleObject : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        if (despawnTime > 0f)
+        {
+            Destroy(gameObject, despawnTime);
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -45,6 +51,11 @@ public class CollectibleObject : MonoBehaviour
 
     private void ApplyCombatDamage(PlayerStats player)
     {
+        if (!canDamagePlayer)
+        {
+            return;
+        }
+
         PlayerCombat playerCombat = player.GetComponent<PlayerCombat>();
         float playerVelocity = playerCombat != null ? playerCombat.GetEffectiveVelocity() : stationaryVelocity;
 
