@@ -57,9 +57,9 @@ All future and performance related concerns must be noted in the **Future Concer
    - If ring damage in a tick meets or exceeds `playerDestructionThreshold` (shared with combat), player dies instantly
    - Game mode tagged **Battle Royale** — additional game modes may be added later
 
-### Phase 2 — Multiplayer
-6. Photon integration + session management
-7. Sync player state (position, size, health)
+### Phase 2 — Multiplayer ✓
+6. Photon integration + session management ✓
+7. Sync player state (position, size, health) ✓
 
 ### Phase 3 — Polish
 8. UI (health, size indicator, player count)
