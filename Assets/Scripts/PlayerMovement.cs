@@ -1,16 +1,15 @@
+using Fusion;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(PlayerStats))]
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : NetworkBehaviour
 {
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private float groundCheckDistance = 0.6f;
 
     private Rigidbody rigidBody;
     private PlayerStats stats;
-    private InputSystem_Actions inputActions;
     private Transform cameraTransform;
 
     private Vector2 moveInput;
@@ -21,43 +20,24 @@ public class PlayerMovement : MonoBehaviour
     {
         rigidBody = GetComponent<Rigidbody>();
         stats = GetComponent<PlayerStats>();
-        inputActions = new InputSystem_Actions();
         cameraTransform = Camera.main.transform;
     }
 
-    private void OnEnable()
+    public override void FixedUpdateNetwork()
     {
-        inputActions.Player.Enable();
-        inputActions.Player.Jump.performed += OnJump;
-        inputActions.Player.Sprint.performed += OnDashStarted;
-        inputActions.Player.Sprint.canceled += OnDashCanceled;
-    }
-
-    private void OnDisable()
-    {
-        inputActions.Player.Jump.performed -= OnJump;
-        inputActions.Player.Sprint.performed -= OnDashStarted;
-        inputActions.Player.Sprint.canceled -= OnDashCanceled;
-        inputActions.Player.Disable();
-    }
-
-    private void Update()
-    {
-        if (stats.Runner != null && !stats.HasStateAuthority)
+        if (!HasStateAuthority)
         {
             return;
         }
 
-        moveInput = inputActions.Player.Move.ReadValue<Vector2>();
+        var input = GetInput<NetworkManager.NetworkInputData>();
+        moveInput = input.Move;
+        isDashing = input.Dash;
+        if (input.Jump)
+        {
+            TriggerJump();
+        }
         isGrounded = CheckGrounded();
-    }
-
-    private void FixedUpdate()
-    {
-        if (stats.Runner != null && !stats.HasStateAuthority)
-        {
-            return;
-        }
 
         ApplyMovement();
         ApplySlide();
@@ -110,13 +90,8 @@ public class PlayerMovement : MonoBehaviour
         return isDashing ? speed * stats.playerDashMultiplier : speed;
     }
 
-    private void OnJump(InputAction.CallbackContext context)
+    private void TriggerJump()
     {
-        if (stats.Runner != null && !stats.HasStateAuthority)
-        {
-            return;
-        }
-
         if (!isGrounded)
         {
             return;

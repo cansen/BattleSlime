@@ -4,23 +4,36 @@ using Fusion;
 using Fusion.Sockets;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
 public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
 {
+    public struct NetworkInputData : INetworkInput
+    {
+        public Vector2 Move;
+        public bool Jump;
+        public bool Dash;
+    }
+
     [SerializeField] private NetworkObject playerPrefab;
     [SerializeField] private string sessionName = "BattleSlimeRoom";
+    [SerializeField] private GameMode gameMode = GameMode.AutoHostOrClient;
     [SerializeField] private float spawnRadius = 20f;
 
     private NetworkRunner runner;
+    private Dictionary<PlayerRef, NetworkObject> playerObjects = new Dictionary<PlayerRef, NetworkObject>();
+    private InputSystem_Actions inputActions;
 
     private async void Start()
     {
+        inputActions = new InputSystem_Actions();
+        inputActions.Player.Enable();
         runner = gameObject.AddComponent<NetworkRunner>();
         runner.ProvideInput = true;
 
         await runner.StartGame(new StartGameArgs
         {
-            GameMode = GameMode.Shared,
+            GameMode = gameMode,
             SessionName = sessionName,
             Scene = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex),
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
@@ -40,14 +53,40 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
             UnityEngine.Random.Range(-spawnRadius, spawnRadius)
         );
 
-        runner.Spawn(playerPrefab, spawnPosition, Quaternion.identity, player);
+        NetworkObject spawned = runner.Spawn(playerPrefab, spawnPosition, Quaternion.identity, player);
+        playerObjects[player] = spawned;
+        Debug.Log($"[Network] Player {player} joined and spawned.");
     }
 
-    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
-    public void OnInput(NetworkRunner runner, NetworkInput input) { }
+    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
+    {
+        if (playerObjects.TryGetValue(player, out NetworkObject obj))
+        {
+            runner.Despawn(obj);
+            playerObjects.Remove(player);
+        }
+        Debug.Log($"[Network] Player {player} left and despawned.");
+    }
+    public void OnInput(NetworkRunner runner, NetworkInput input)
+    {
+        NetworkInputData data = new NetworkInputData
+        {
+            Move = inputActions.Player.Move.ReadValue<Vector2>(),
+            Jump = inputActions.Player.Jump.WasPressedThisFrame(),
+            Dash = inputActions.Player.Sprint.WasPressedThisFrame()
+        };
+        input.Set(data);
+    }
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
-    public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
-    public void OnConnectedToServer(NetworkRunner runner) { }
+    public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
+    {
+        playerObjects.Clear();
+        inputActions?.Player.Disable();
+    }
+    public void OnConnectedToServer(NetworkRunner runner)
+    {
+        Debug.Log("[Network] Connected to server.");
+    }
     public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) { }
     public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) { }

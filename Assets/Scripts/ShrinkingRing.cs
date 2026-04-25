@@ -1,8 +1,9 @@
 using System.Collections.Generic;
+using Fusion;
 using UnityEngine;
 
 [RequireComponent(typeof(LineRenderer))]
-public class ShrinkingRing : MonoBehaviour
+public class ShrinkingRing : NetworkBehaviour
 {
     [Header("Match")]
     [SerializeField] private float matchDuration = 120f;
@@ -23,10 +24,10 @@ public class ShrinkingRing : MonoBehaviour
     [SerializeField] private float ringLineWidth = 0.5f;
     [SerializeField] private Color ringColor = new Color(0f, 0.8f, 1f, 1f);
 
-    private float currentRadius;
-    private float matchTimer;
-    private float shrinkTimer;
-    private float damageTimer;
+    [Networked] private float networkedCurrentRadius { get; set; }
+    [Networked] private float networkedMatchTimer { get; set; }
+    [Networked] private float networkedShrinkTimer { get; set; }
+    [Networked] private float networkedDamageTimer { get; set; }
 
     private LineRenderer lineRenderer;
     private ParticleSystem ringParticles;
@@ -37,34 +38,45 @@ public class ShrinkingRing : MonoBehaviour
         ringParticles = GetComponentInChildren<ParticleSystem>();
     }
 
-    private void Start()
+    public override void Spawned()
     {
-        currentRadius = ringStartRadius;
+        networkedCurrentRadius = ringStartRadius;
+        networkedMatchTimer = 0f;
+        networkedShrinkTimer = 0f;
+        networkedDamageTimer = 0f;
         SetupLineRenderer();
-        UpdateVisuals();
     }
 
     private void Update()
     {
-        matchTimer += Time.deltaTime;
-        if (matchTimer >= matchDuration)
+        currentRadius = networkedCurrentRadius;
+        UpdateVisuals();
+    }
+
+    public override void FixedUpdateNetwork()
+    {
+        if (!HasStateAuthority)
         {
             return;
         }
 
-        shrinkTimer += Time.deltaTime;
-        if (shrinkTimer >= ringShrinkInterval)
+        networkedMatchTimer += Runner.DeltaTime;
+        if (networkedMatchTimer >= matchDuration)
         {
-            shrinkTimer -= ringShrinkInterval;
-            currentRadius = Mathf.Max(currentRadius - ringShrinkAmount, ringMinRadius);
-            UpdateVisuals();
-            Debug.Log($"[Ring] Shrunk to radius {currentRadius}");
+            return;
         }
 
-        damageTimer += Time.deltaTime;
-        if (damageTimer >= 1f)
+        networkedShrinkTimer += Runner.DeltaTime;
+        if (networkedShrinkTimer >= ringShrinkInterval)
         {
-            damageTimer -= 1f;
+            networkedShrinkTimer -= ringShrinkInterval;
+            networkedCurrentRadius = Mathf.Max(networkedCurrentRadius - ringShrinkAmount, ringMinRadius);
+        }
+
+        networkedDamageTimer += Runner.DeltaTime;
+        if (networkedDamageTimer >= 1f)
+        {
+            networkedDamageTimer -= 1f;
             ApplyRingDamage();
         }
     }
@@ -125,7 +137,7 @@ public class ShrinkingRing : MonoBehaviour
         for (int i = 0; i < outsidePlayers.Count; i++)
         {
             PlayerStats player = outsidePlayers[i];
-            if (player.isDead || (player.Runner != null && !player.HasStateAuthority))
+            if (player.isDead)
             {
                 continue;
             }
@@ -147,7 +159,7 @@ public class ShrinkingRing : MonoBehaviour
     {
         Vector2 flatPosition = new Vector2(position.x, position.z);
         Vector2 flatCenter = new Vector2(transform.position.x, transform.position.z);
-        return Vector2.Distance(flatPosition, flatCenter) > currentRadius;
+        return Vector2.Distance(flatPosition, flatCenter) > networkedCurrentRadius;
     }
 
     public float CurrentRadius => currentRadius;
