@@ -157,12 +157,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87eafae1d03a14cb1b7e6616c838168a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
-  playerBaseMovementSpeed: 5
-  playerSizeMovementConstant: 0.01
+  playerBaseMovementSpeed: 60
+  playerSizeMovementConstant: 0.2
   playerSlideSpeed: 3
   playSlideDamping: 4
-  playerDashMultiplier: 2.5
-  playerJumpHeight: 2
+  playerDashMultiplier: 4
+  playerJumpHeight: 3
   playerJumpHeightReachDuration: 0.4
   instantStopDuration: 0.1
   playerMaxSize: 1000
@@ -209,7 +209,7 @@ MonoBehaviour:
   deformationSmoothing: 10
   wobbleFrequency: 12
   wobbleDamping: 4
-  collisionImpactMultiplier: 0.4
+  collisionImpactMultiplier: 0.1
 --- !u!114 &8208054351896652131
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -55,7 +55,6 @@ public class PlayerMovement : NetworkBehaviour
 
         Vector3 direction = CalculateMoveDirection();
         float speed = CalculateMovementSpeed();
-        Debug.Log($"[Movement] speed={speed:F1} base={stats.playerBaseMovementSpeed} size={stats.playerCurrentSize:F1}");
         Vector3 velocity = direction * speed;
         velocity.y = rigidBody.linearVelocity.y;
         rigidBody.linearVelocity = velocity;
@@ -89,7 +88,7 @@ public class PlayerMovement : NetworkBehaviour
 
     private float CalculateMovementSpeed()
     {
-        float sizePenalty = 1f + (stats.playerCurrentSize - 1f) * stats.playerSizeMovementConstant;
+        float sizePenalty = Mathf.Pow(Mathf.Max(stats.playerCurrentSize, 1f), stats.playerSizeMovementConstant);
         float speed = stats.playerBaseMovementSpeed / sizePenalty;
         return isDashing ? speed * stats.playerDashMultiplier : speed;
     }

@@ -20,11 +20,13 @@ public class CollectibleObject : NetworkBehaviour
     [Networked] private float networkedSizeValue { get; set; }
     [Networked] private NetworkBool networkedCanDamagePlayer { get; set; }
     [Networked] private NetworkBool networkedIsCollected { get; set; }
+    [Networked] private NetworkBool networkedIsInitial { get; set; }
     [Networked] private TickTimer lifetimeTimer { get; set; }
 
     private float localSizeValue;
     private bool localCanDamagePlayer = true;
     private bool localIsCollected;
+    private bool localIsInitial;
     private float graceDuration;
     private float spawnTime = float.MinValue;
     private Rigidbody rb;
@@ -68,10 +70,37 @@ public class CollectibleObject : NetworkBehaviour
         }
     }
 
+    public bool isInitial
+    {
+        get => Runner != null ? (bool)networkedIsInitial : localIsInitial;
+        set
+        {
+            localIsInitial = value;
+            if (Runner != null)
+            {
+                networkedIsInitial = value;
+            }
+        }
+    }
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         localSizeValue = defaultSizeValue;
+
+        JellyEffect jelly = GetComponent<JellyEffect>();
+        if (jelly != null)
+        {
+            Destroy(jelly);
+        }
+    }
+
+    public override void Spawned()
+    {
+        if (isInitial)
+        {
+            ApplyInitialAppearance();
+        }
     }
 
     public void ScheduleDespawn(float time)
@@ -92,6 +121,29 @@ public class CollectibleObject : NetworkBehaviour
         spawnTime = Time.time;
     }
 
+    public void ApplyInitialAppearance()
+    {
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        MaterialPropertyBlock block = new MaterialPropertyBlock();
+        foreach (Renderer r in renderers)
+        {
+            r.GetPropertyBlock(block);
+            block.SetColor("_BaseColor", Color.gray);
+            block.SetColor("_Color", Color.gray);
+            r.SetPropertyBlock(block);
+        }
+
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+        }
+        Collider col = GetComponent<Collider>();
+        if (col != null)
+        {
+            col.isTrigger = true;
+        }
+    }
+
     public override void FixedUpdateNetwork()
     {
         if (!HasStateAuthority)
@@ -106,6 +158,16 @@ public class CollectibleObject : NetworkBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        HandlePlayerContact(collision.gameObject);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        HandlePlayerContact(other.gameObject);
+    }
+
+    private void HandlePlayerContact(GameObject contact)
+    {
         if (isCollected)
         {
             return;
@@ -115,7 +177,7 @@ public class CollectibleObject : NetworkBehaviour
             return;
         }
 
-        PlayerStats player = collision.gameObject.GetComponent<PlayerStats>();
+        PlayerStats player = contact.GetComponent<PlayerStats>();
         if (player == null)
         {
             return;

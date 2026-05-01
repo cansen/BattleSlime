@@ -48,6 +48,7 @@ public class ObjectSpawner : NetworkBehaviour
         }
         co.objectSizeValue = sizeValue;
         co.canDamagePlayer = true;
+        co.isInitial = true;
         obj.transform.localScale = Vector3.one * visualScale;
     }
 

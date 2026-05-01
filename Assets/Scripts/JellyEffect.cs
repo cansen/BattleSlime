@@ -95,7 +95,28 @@ public class JellyEffect : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (!ShouldWobbleOn(collision))
+        {
+            return;
+        }
         float impact = collision.relativeVelocity.magnitude;
         wobbleVelocity += impact * collisionImpactMultiplier;
+    }
+
+    private bool ShouldWobbleOn(Collision collision)
+    {
+        PlayerStats self = GetComponent<PlayerStats>();
+        if (self == null)
+        {
+            return false;
+        }
+
+        if (collision.gameObject.GetComponent<PlayerStats>() != null)
+        {
+            return true;
+        }
+
+        CollectibleObject other = collision.gameObject.GetComponent<CollectibleObject>();
+        return other != null && other.objectSizeValue > self.playerCurrentSize;
     }
 }

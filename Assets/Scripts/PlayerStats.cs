@@ -5,8 +5,8 @@ using UnityEngine;
 public class PlayerStats : NetworkBehaviour
 {
     [Header("Movement")]
-    public float playerBaseMovementSpeed = 5f;
-    public float playerSizeMovementConstant = 1f;
+    public float playerBaseMovementSpeed = 12f;
+    public float playerSizeMovementConstant = 0.333f;
     public float playerSlideSpeed = 3f;
     public float playSlideDamping = 4f;
     public float playerDashMultiplier = 2.5f;
@@ -113,8 +113,19 @@ public class PlayerStats : NetworkBehaviour
 
     public void Grow(float amount)
     {
+        float oldScale = CalculateVisualScale();
         playerCurrentSize = Mathf.Min(playerCurrentSize + amount, playerMaxSize);
-        transform.localScale = Vector3.one * CalculateVisualScale();
+        float newScale = CalculateVisualScale();
+        transform.localScale = Vector3.one * newScale;
+
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            Vector3 pos = rb.position;
+            pos.y += (newScale - oldScale) * 0.5f;
+            rb.position = pos;
+        }
+
         jellyEffect?.RefreshBaseScale();
     }
 
