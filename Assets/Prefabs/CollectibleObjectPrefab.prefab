@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 8514706831416461871}
   - component: {fileID: 8501507786054081100}
   - component: {fileID: 9146948845719255680}
-  - component: {fileID: 9146948845719255681}
   - component: {fileID: 45490928815152843}
   m_Layer: 0
   m_Name: CollectibleObjectPrefab
@@ -134,38 +133,7 @@ MonoBehaviour:
   velocityMultiplier: 1
   velocityConstant: 0.1
   damageMultiplier: 0.005
-  damageConstant: 5000
---- !u!114 &9146948845719255681
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3635562228949669565}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87eafae1d03a14cb1b7e6616c838168a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
-  playerBaseMovementSpeed: 5
-  playerSizeMovementConstant: 1
-  playerSlideSpeed: 3
-  playSlideDamping: 4
-  playerDashMultiplier: 2.5
-  playerJumpHeight: 2
-  playerJumpHeightReachDuration: 0.4
-  instantStopDuration: 0.1
-  playerMaxSize: 1000
-  playerStartSize: 100
-  playerInstantDeathSize: 10
-  playerDestructionThreshold: 50
-  playerDamageIndicatorDuration: 1.5
-  playerCollisionForce: 10
-  playerMass: 1
-  miniSpherePrefab: {fileID: 0}
-  maxMiniSpheresPerHit: 10
-  miniSphereScatterForce: 8
-  miniSphereGraceDuration: 1.5
+  damageConstant: 0
 --- !u!114 &45490928815152843
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -184,5 +152,4 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 9146948845719255680}
-  - {fileID: 9146948845719255681}
   ForceRemoteRenderTimeframe: 0

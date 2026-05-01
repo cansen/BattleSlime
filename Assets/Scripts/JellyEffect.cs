@@ -34,7 +34,12 @@ public class JellyEffect : MonoBehaviour
         baseColliderRadius = sphereCollider != null ? sphereCollider.radius : 0f;
     }
 
-    private void Update()
+    public void SetBaseSize(Vector3 uniformScale)
+    {
+        baseScale = uniformScale;
+    }
+
+    private void LateUpdate()
     {
         UpdateWobble();
         ApplyDeformation();

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__coplay-mcp__set_property",
+      "Bash(xargs ls *)",
+      "mcp__coplay-mcp__get_game_object_info",
+      "mcp__coplay-mcp__play_game",
+      "mcp__coplay-mcp__stop_game",
+      "mcp__coplay-mcp__remove_component",
+      "Bash(git reset *)"
+    ]
+  }
+}

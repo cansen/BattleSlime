@@ -55,6 +55,7 @@ public class PlayerMovement : NetworkBehaviour
 
         Vector3 direction = CalculateMoveDirection();
         float speed = CalculateMovementSpeed();
+        Debug.Log($"[Movement] speed={speed:F1} base={stats.playerBaseMovementSpeed} size={stats.playerCurrentSize:F1}");
         Vector3 velocity = direction * speed;
         velocity.y = rigidBody.linearVelocity.y;
         rigidBody.linearVelocity = velocity;

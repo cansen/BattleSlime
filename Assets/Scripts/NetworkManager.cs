@@ -19,6 +19,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] private string sessionName = "BattleSlimeRoom";
     [SerializeField] private GameMode gameMode = GameMode.AutoHostOrClient;
     [SerializeField] private float spawnRadius = 20f;
+    [SerializeField] private float spawnHeight = 3f;
 
     private NetworkRunner runner;
     private Dictionary<PlayerRef, NetworkObject> playerObjects = new Dictionary<PlayerRef, NetworkObject>();
@@ -49,7 +50,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
 
         Vector3 spawnPosition = new Vector3(
             UnityEngine.Random.Range(-spawnRadius, spawnRadius),
-            1f,
+            spawnHeight,
             UnityEngine.Random.Range(-spawnRadius, spawnRadius)
         );
 

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__coplay-mcp__list_files",
+      "mcp__coplay-mcp__get_game_object_info",
+      "mcp__coplay-mcp__set_property",
+      "mcp__coplay-mcp__create_game_object",
+      "mcp__coplay-mcp__add_component",
+      "mcp__coplay-mcp__stop_game",
+      "Bash(git -C /Users/cs/Desktop/BattleSlime log --oneline -10)",
+      "Bash(git -C /Users/cs/Desktop/BattleSlime diff main..HEAD --name-only)",
+      "Bash(git -C /Users/cs/Desktop/BattleSlime log main..HEAD --oneline)"
+    ]
+  }
+}

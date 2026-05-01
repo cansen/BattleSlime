@@ -96,7 +96,15 @@ public class PlayerStats : NetworkBehaviour
     {
         if (playerCurrentSize > 0f)
         {
-            transform.localScale = Vector3.one * CalculateVisualScale();
+            float scale = CalculateVisualScale();
+            if (jellyEffect != null)
+            {
+                jellyEffect.SetBaseSize(Vector3.one * scale);
+            }
+            else
+            {
+                transform.localScale = Vector3.one * scale;
+            }
         }
     }
 

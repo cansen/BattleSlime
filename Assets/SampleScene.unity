@@ -921,6 +921,7 @@ MonoBehaviour:
   sessionName: BattleSlimeRoom
   gameMode: 6
   spawnRadius: 20
+  spawnHeight: 3
 --- !u!4 &939025442
 Transform:
   m_ObjectHideFlags: 0
