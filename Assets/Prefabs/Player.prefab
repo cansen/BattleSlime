@@ -173,7 +173,7 @@ MonoBehaviour:
   playerDamageIndicatorDuration: 1.5
   playerCollisionForce: 10
   playerMass: 1
-  miniSpherePrefab: {fileID: 3635562228949669565, guid: 4c6943ae95f2949b98cc7241b7a690b3, type: 3}
+  miniSpherePrefab: {fileID: 0}
   maxMiniSpheresPerHit: 10
   miniSphereScatterForce: 8
   miniSphereGraceDuration: 1.5

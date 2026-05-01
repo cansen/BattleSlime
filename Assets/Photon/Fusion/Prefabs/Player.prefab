@@ -173,6 +173,9 @@ MonoBehaviour:
   playerCollisionForce: 10
   playerMass: 1
   miniSpherePrefab: {fileID: 0}
+  maxMiniSpheresPerHit: 10
+  miniSphereScatterForce: 8
+  miniSphereGraceDuration: 1.5
 --- !u!114 &5300720017289779407
 MonoBehaviour:
   m_ObjectHideFlags: 0
