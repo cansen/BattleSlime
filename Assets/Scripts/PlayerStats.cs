@@ -84,6 +84,8 @@ public class PlayerStats : NetworkBehaviour
         {
             isLocalPlayer = true;
             playerCurrentSize = playerStartSize;
+            CameraController cam = Camera.main?.GetComponent<CameraController>();
+            cam?.SetTarget(transform);
         }
 
         transform.localScale = Vector3.one * CalculateVisualScale();
