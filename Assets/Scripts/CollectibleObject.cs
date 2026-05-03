@@ -10,6 +10,9 @@ public class CollectibleObject : NetworkBehaviour
     [Header("Knockback")]
     [SerializeField] private float knockbackForce = 0.05f;
 
+    [Header("Mass")]
+    [SerializeField] private float massPerSize = 1f;
+
     [Header("Formula Parameters")]
     [SerializeField] private float sizeMultiplier = 1f;
     [SerializeField] private float velocityMultiplier = 1f;
@@ -30,6 +33,7 @@ public class CollectibleObject : NetworkBehaviour
     private float graceDuration;
     private float spawnTime = float.MinValue;
     private Rigidbody rb;
+    private Collider cachedCollider;
 
     public float objectSizeValue
     {
@@ -41,7 +45,17 @@ public class CollectibleObject : NetworkBehaviour
             {
                 networkedSizeValue = value;
             }
+            SyncMassToSize();
         }
+    }
+
+    private void SyncMassToSize()
+    {
+        if (rb == null)
+        {
+            return;
+        }
+        rb.mass = Mathf.Max(objectSizeValue * massPerSize, 0.0001f);
     }
 
     public bool canDamagePlayer
@@ -86,7 +100,9 @@ public class CollectibleObject : NetworkBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        cachedCollider = GetComponent<Collider>();
         localSizeValue = defaultSizeValue;
+        SyncMassToSize();
 
         JellyEffect jelly = GetComponent<JellyEffect>();
         if (jelly != null)
@@ -137,11 +153,6 @@ public class CollectibleObject : NetworkBehaviour
         {
             rb.isKinematic = true;
         }
-        Collider col = GetComponent<Collider>();
-        if (col != null)
-        {
-            col.isTrigger = true;
-        }
     }
 
     public override void FixedUpdateNetwork()
@@ -158,11 +169,13 @@ public class CollectibleObject : NetworkBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        Debug.Log($"[Collect] OnCollisionEnter via '{collision.gameObject.name}' on collectible size={objectSizeValue:F1}");
         HandlePlayerContact(collision.gameObject);
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log($"[Collect] OnTriggerEnter via '{other.gameObject.name}' on collectible size={objectSizeValue:F1}");
         HandlePlayerContact(other.gameObject);
     }
 
@@ -170,26 +183,36 @@ public class CollectibleObject : NetworkBehaviour
     {
         if (isCollected)
         {
+            Debug.Log($"[Collect] EARLY-RETURN isCollected on collectible size={objectSizeValue:F1}");
             return;
         }
         if (Time.time - spawnTime < graceDuration)
         {
+            Debug.Log($"[Collect] EARLY-RETURN grace on collectible size={objectSizeValue:F1}");
             return;
         }
 
         PlayerStats player = contact.GetComponent<PlayerStats>();
         if (player == null)
         {
+            Debug.Log($"[Collect] EARLY-RETURN no PlayerStats on '{contact.name}'");
             return;
         }
         if (player.Runner != null && !player.HasStateAuthority)
         {
+            Debug.Log($"[Collect] EARLY-RETURN no auth (player '{player.gameObject.name}')");
             return;
         }
+
+        Debug.Log($"[Collect] CHECK player.size={player.playerCurrentSize:F1} vs obj.size={objectSizeValue:F1} → {(player.playerCurrentSize > objectSizeValue ? "ABSORB" : "DAMAGE")}");
 
         if (player.playerCurrentSize > objectSizeValue)
         {
             isCollected = true;
+            if (cachedCollider != null)
+            {
+                cachedCollider.enabled = false;
+            }
             player.Grow(objectSizeValue);
             if (Runner != null)
             {

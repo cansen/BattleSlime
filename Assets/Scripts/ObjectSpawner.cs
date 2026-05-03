@@ -12,6 +12,9 @@ public class ObjectSpawner : NetworkBehaviour
     [SerializeField] private float minSizeValue = 80f;
     [SerializeField] private float maxSizeValue = 500f;
 
+    [Header("Ground")]
+    [SerializeField] private float groundLevel = 0.42f;
+
     public override void Spawned()
     {
         if (!HasStateAuthority)
@@ -34,7 +37,7 @@ public class ObjectSpawner : NetworkBehaviour
         float sizeValue = Random.Range(minSizeValue, maxSizeValue);
         float visualScale = Mathf.Pow(sizeValue, 1f / 3f);
         Vector3 position = GenerateRandomPosition();
-        position.y = visualScale / 2f;
+        position.y = groundLevel + visualScale / 2f;
         Runner.Spawn(collectiblePrefab, position, Quaternion.identity,
             onBeforeSpawned: (runner, obj) => InitCollectible(obj, sizeValue, visualScale));
     }

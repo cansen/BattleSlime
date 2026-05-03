@@ -25,7 +25,10 @@ public class PlayerStats : NetworkBehaviour
     public float playerDestructionThreshold = 50f;
     public float playerDamageIndicatorDuration = 1.5f;
     public float playerCollisionForce = 10f;
-    public float playerMass = 1f;
+    public float massPerSize = 1f;
+
+    [Header("Spawn")]
+    [SerializeField] private float groundLevel = 0.42f;
     [SerializeField] private GameObject miniSpherePrefab;
     [SerializeField] private int maxMiniSpheresPerHit = 10;
     [SerializeField] private float miniSphereScatterForce = 8f;
@@ -69,12 +72,15 @@ public class PlayerStats : NetworkBehaviour
     public static IReadOnlyList<PlayerStats> ActivePlayers => activePlayers;
 
     private JellyEffect jellyEffect;
+    private Rigidbody cachedRigidbody;
 
     private void Awake()
     {
         jellyEffect = GetComponent<JellyEffect>();
+        cachedRigidbody = GetComponent<Rigidbody>();
         localSize = playerStartSize;
         transform.localScale = Vector3.one * CalculateVisualScale();
+        SyncMassToSize();
         jellyEffect?.RefreshBaseScale();
     }
 
@@ -86,9 +92,17 @@ public class PlayerStats : NetworkBehaviour
             playerCurrentSize = playerStartSize;
             CameraController cam = Camera.main?.GetComponent<CameraController>();
             cam?.SetTarget(transform);
+
+            if (cachedRigidbody != null)
+            {
+                Vector3 pos = cachedRigidbody.position;
+                pos.y = groundLevel + CalculateVisualScale() * 0.5f;
+                cachedRigidbody.position = pos;
+            }
         }
 
         transform.localScale = Vector3.one * CalculateVisualScale();
+        SyncMassToSize();
         jellyEffect?.RefreshBaseScale();
     }
 
@@ -118,14 +132,14 @@ public class PlayerStats : NetworkBehaviour
         float newScale = CalculateVisualScale();
         transform.localScale = Vector3.one * newScale;
 
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null)
+        if (cachedRigidbody != null)
         {
-            Vector3 pos = rb.position;
+            Vector3 pos = cachedRigidbody.position;
             pos.y += (newScale - oldScale) * 0.5f;
-            rb.position = pos;
+            cachedRigidbody.position = pos;
         }
 
+        SyncMassToSize();
         jellyEffect?.RefreshBaseScale();
     }
 
@@ -170,7 +184,17 @@ public class PlayerStats : NetworkBehaviour
         }
 
         transform.localScale = Vector3.one * CalculateVisualScale();
+        SyncMassToSize();
         jellyEffect?.RefreshBaseScale();
+    }
+
+    private void SyncMassToSize()
+    {
+        if (cachedRigidbody == null)
+        {
+            return;
+        }
+        cachedRigidbody.mass = Mathf.Max(playerCurrentSize * massPerSize, 0.0001f);
     }
 
     public void Die()
