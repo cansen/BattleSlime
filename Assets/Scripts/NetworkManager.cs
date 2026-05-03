@@ -24,6 +24,15 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     private NetworkRunner runner;
     private Dictionary<PlayerRef, NetworkObject> playerObjects = new Dictionary<PlayerRef, NetworkObject>();
     private InputSystem_Actions inputActions;
+    private bool jumpPressedBuffered;
+    private bool dashPressedBuffered;
+
+    private void Update()
+    {
+        if (inputActions == null) return;
+        if (inputActions.Player.Jump.WasPressedThisFrame()) jumpPressedBuffered = true;
+        if (inputActions.Player.Sprint.WasPressedThisFrame()) dashPressedBuffered = true;
+    }
 
     private async void Start()
     {
@@ -73,9 +82,11 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         NetworkInputData data = new NetworkInputData
         {
             Move = inputActions.Player.Move.ReadValue<Vector2>(),
-            Jump = inputActions.Player.Jump.WasPressedThisFrame(),
-            Dash = inputActions.Player.Sprint.WasPressedThisFrame()
+            Jump = jumpPressedBuffered,
+            Dash = dashPressedBuffered
         };
+        jumpPressedBuffered = false;
+        dashPressedBuffered = false;
         input.Set(data);
     }
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }

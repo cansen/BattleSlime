@@ -15,7 +15,7 @@ public class CollectibleObject : NetworkBehaviour
     [SerializeField] private float velocityMultiplier = 1f;
     [SerializeField] private float velocityConstant = 0.1f;
     [SerializeField] private float damageMultiplier = 0.005f;
-    [SerializeField] private float damageConstant = 5000f;
+    [SerializeField] private float damageConstant = 0f;
 
     [Networked] private float networkedSizeValue { get; set; }
     [Networked] private NetworkBool networkedCanDamagePlayer { get; set; }
